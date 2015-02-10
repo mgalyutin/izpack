@@ -76,7 +76,7 @@ public class IzpackAntRunnable implements Runnable
         }
         catch (Exception e)
         {
-            throw new BuildException(e);
+            this.cause = e;
         }
 
     }
@@ -99,4 +99,13 @@ public class IzpackAntRunnable implements Runnable
         return fixpath.toString();
     }
 
+    private Exception cause = null;
+
+    public boolean hasError() {
+        return cause != null;
+    }
+
+    public Exception getError() {
+        return cause;
+    }
 }

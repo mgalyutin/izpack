@@ -209,12 +209,18 @@ public class IzPackTask extends Task implements PackagerListener
             ClassLoader loader = new URLClassLoader(getUrlsForClassloader());
             Class runableClass = loader.loadClass("com.izforge.izpack.ant.IzpackAntRunnable");
             Constructor constructor = runableClass.getConstructors()[0];
-            Object instance = constructor.newInstance(compression, kind, input, configText, basedir, output, mkdirs, compressionLevel, properties, inheritAll, getProject().getProperties(), izPackDir);
-            final Thread thread = new Thread((Runnable) instance);
+            Runnable instance = (Runnable)constructor.newInstance(compression, kind, input, configText, basedir, output, mkdirs, compressionLevel, properties, inheritAll, getProject().getProperties(), izPackDir);
+            final Thread thread = new Thread(instance);
             thread.setContextClassLoader(loader);
             thread.start();
             Thread.sleep(100);
             thread.join();
+
+            if (instance instanceof IzpackAntRunnable) {
+                if (((IzpackAntRunnable)instance).hasError()) {
+                    throw new BuildException(((IzpackAntRunnable)instance).getError());
+                }
+            }
         }
         catch (Exception e)
         {

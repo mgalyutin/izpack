@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.zip.ZipFile;
 
+import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.hamcrest.collection.IsCollectionContaining;
 import org.hamcrest.core.Is;
@@ -20,13 +21,20 @@ import com.izforge.izpack.matcher.ZipMatcher;
 public class IzPackTaskTest
 {
 
+    @Test(expected = BuildException.class)
+    public void testIzpackTaskThrowsExceptionIfCompilationFails() throws Exception {
+        IzPackTask task = new IzPackTask();
+        initIzpackTask(task, "InvalidIzpackConfiguration.xml");
+        task.execute();
+    }
+
     @Test
     @Ignore
     public void testExecuteAntAction() throws IllegalAccessException, InterruptedException, IOException
     {
 
         IzPackTask task = new IzPackTask();
-        initIzpackTask(task);
+        initIzpackTask(task, "helloAndFinish.xml");
         task.execute();
 
         Thread.sleep(30000);
@@ -41,9 +49,9 @@ public class IzPackTaskTest
 
     }
 
-    private void initIzpackTask(IzPackTask task) throws IllegalAccessException
+    private void initIzpackTask(IzPackTask task, String resourceName) throws IllegalAccessException
     {
-        File installFile = new File(getClass().getClassLoader().getResource("helloAndFinish.xml").getFile());
+        File installFile = new File(getClass().getClassLoader().getResource(resourceName).getFile());
         task.setInput(installFile.getAbsolutePath());
         task.setBasedir(getClass().getClassLoader().getResource("").getFile());
         task.setOutput("target/izpackResult.jar");
